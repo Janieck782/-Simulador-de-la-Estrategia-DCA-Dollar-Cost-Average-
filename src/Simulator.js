@@ -38,7 +38,7 @@ function Simulator() {
                 url = `/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
             } else {
                 // En producción, consulta directamente a la API
-                url = `https://api.buda.com/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
+                url = `https://www.buda.com/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
             }
             return axios.get(url)
                 .then(response => {
