@@ -32,8 +32,15 @@ function Simulator() {
         });
 
         const responses = await Promise.all(dates.map(date => {
-            
-            return axios.get(`/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`)
+            let url;
+            if (process.env.NODE_ENV === 'development') {
+                // En desarrollo, usa el proxy
+                url = `/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
+            } else {
+                // En producción, consulta directamente a la API
+                url = `https://api.buda.com/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
+            }
+            return axios.get(url)
                 .then(response => {
                     if (response && response.data && response.data.trades && response.data.trades.entries && response.data.trades.entries.length > 0) {
                         const timestamp = response.data.trades.entries[0][0];
