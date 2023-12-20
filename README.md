@@ -1,31 +1,39 @@
-# Create React App
+# DCA Simulator for BUDA.com Technical Challenge
 
-This directory is a brief example of a [Create React App](https://github.com/facebook/create-react-app) site that can be deployed to Vercel with zero configuration.
+Este proyecto es parte de una prueba técnica para un puesto en el equipo de BUDA.com y simula la estrategia de inversión conocida como Dollar Cost Averaging (DCA). El DCA es una táctica financiera donde un inversor reparte una inversión total en compras periódicas de un activo en un esfuerzo por reducir el impacto de la volatilidad en el precio del activo. Al realizar inversiones regulares, independientemente de las fluctuaciones del mercado, el inversor puede beneficiarse del promedio de costos, potencialmente disminuyendo el precio de compra promedio a lo largo del tiempo.
 
-## Deploy Your Own
 
-Deploy your own Create React App project with Vercel.
+## Contenido del Proyecto
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/vercel/tree/main/examples/create-react-app&template=create-react-app)
+- `public/`: Archivos estáticos para la aplicación web.
+- `src/`: Código fuente de la aplicación React, incluyendo componentes, estilos y lógica de negocio.
+- `Dockerfile`: Configuración para contenerizar la aplicación.
+- `package.json`: Dependencias y scripts para el proyecto.
 
-_Live Example: https://create-react-template.vercel.app/_
+## Cómo ejecutar la aplicación en local
 
-## Available Scripts
+Para ejecutar la aplicación de React en tu entorno local, sigue estos pasos:
 
-In the project directory, you can run:
+1. Clona el repositorio en tu máquina local.
+2. Instala las dependencias con `npm install`.
+3. Inicia el servidor de desarrollo con `npm start`.
+4. Abre tu navegador y visita `http://localhost:3000` para ver la aplicación.
 
-### `npm start`
+## Cómo levantar la aplicación con Docker
 
-Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Para contenerizar y ejecutar la aplicación con Docker, sigue estos pasos:
 
-The page will reload when you make changes. You may also see any lint errors in the console.
+1. Construye la imagen Docker con el siguiente comando:
 
-### `npm test`
+    ```bash
+    docker build -t dca-simulator-buda .
+    ```
 
-Launches the test runner in the interactive watch mode. See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Una vez construida la imagen, ejecuta el contenedor mapeando el puerto de la aplicación al puerto de tu máquina local:
 
-### `npm run build`
+    ```bash
+    docker run -p 3000:3000 dca-simulator-buda
+    ```
 
-Builds the app for production to the `build` folder.
+3. Accede a la aplicación desde tu navegador en `http://localhost:3000`.
 
-It correctly bundles React in production mode and optimizes the build for the best performance. The build is minified and the filenames include the hashes.
