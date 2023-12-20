@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import { subMonths, startOfMonth, getUnixTime } from 'date-fns';
+import { subMonths, startOfMonth, getUnixTime, startOfDay } from 'date-fns';
 
 function Simulator() {
     const [data, setData] = useState([]);
@@ -15,14 +15,23 @@ function Simulator() {
 
     const fetchData = async () => {
         const dates = Array.from({ length: 12 }, (_, i) => {
-            const date = startOfMonth(subMonths(new Date(), i));
+            const date = startOfDay(startOfMonth(subMonths(new Date(), i)));
             return getUnixTime(date);
         });
 
         const responses = await Promise.all(dates.map(date => {
-            return axios.get(`/api/v2/markets/BTC-CLP/trades?last_timestamp=${date}`)
+            console.log("Fetching trades for date:", new Date(date * 1000)); // Muestra la fecha en la consola
+            return axios.get(`/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`)
                 .then(response => {
-                    console.log(response.data); // Muestra la respuesta de la API en la consola
+                    if (response && response.data && response.data.trades && response.data.trades.entries && response.data.trades.entries.length > 0) {
+                        const timestamp = response.data.trades.entries[0][0]; // Asume que la fecha viene en el primer valor de entries
+                        if (!isNaN(timestamp)) { // Comprueba si timestamp es un número
+                            const date = new Date(parseInt(timestamp)); // Convierte el timestamp Unix a un objeto Date
+                            console.log(Response); // Muestra la fecha en la consola
+                        } else {
+                            console.log('Invalid timestamp:', timestamp); // Muestra un mensaje de error si timestamp no es un número
+                        }
+                    }
                     return response;
                 })
                 .catch(error => {
@@ -30,10 +39,20 @@ function Simulator() {
                     return null;
                 });
         }));
+        console.log("Responses:", responses); // Muestra las respuestas en la consola
 
         const trades = responses.map(response => {
             if (response && response.data && response.data.trades && response.data.trades.entries && response.data.trades.entries.length > 0) {
-                return response.data.trades.entries[0];
+                const trade = response.data.trades.entries[0];
+                const timestamp = parseInt(trade[0]);
+                const date = new Date(timestamp * 1000); // Convertir el timestamp a milisegundos
+                return {
+                    date,
+                    amount: parseFloat(trade[1]),
+                    price: parseFloat(trade[2]),
+                    type: trade[3],
+                    id: trade[4]
+                };
             } else {
                 return null;
             }
@@ -44,8 +63,8 @@ function Simulator() {
         let totalBTC = 0;
         const processedData = trades.map((trade, index) => {
             if (trade) {
-                const amount = parseFloat(trade[1]);
-                const price = parseFloat(trade[2]);
+                const amount = trade.amount;
+                const price = trade.price;
 
                 totalInvestment += investment;
                 const btcBought = investment / price;
