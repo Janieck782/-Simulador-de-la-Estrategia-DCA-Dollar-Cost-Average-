@@ -5,6 +5,7 @@ import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 import {  startOfMonth, getUnixTime, startOfDay, differenceInMonths, addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+
 function Simulator() {
     const [data, setData] = useState([]);
     const [investment, setInvestment] = useState(500);

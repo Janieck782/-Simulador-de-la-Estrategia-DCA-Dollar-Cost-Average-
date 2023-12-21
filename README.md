@@ -37,3 +37,35 @@ Para contenerizar y ejecutar la aplicación con Docker, sigue estos pasos:
 
 3. Accede a la aplicación desde tu navegador en `http://localhost:3000`.
 
+## Solución para Problemas de CORS en Vercel
+
+Para permitir que la aplicación React se conecte a la API de BUDA.com sin problemas, puedes utilizar la extensión del navegador "Moesif Origin & CORS Changer". Esta extensión actúa como un proxy en tu navegador y te permite sortear las restricciones CORS (Cross-Origin Resource Sharing) que pueden bloquear las solicitudes a la API desde dominios diferentes al de la API.
+
+### Pasos para Habilitar la Extensión
+
+1. **Instala la Extensión**:
+   - [Moesif Origin & CORS Changer para Google Chrome](https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc)
+   - [Moesif Origin & CORS Changer para Mozilla Firefox](https://addons.mozilla.org/en-US/firefox/addon/moesif-origin-cors-changer1/)
+
+2. **Activa la Extensión**:
+   Después de instalar la extensión, asegúrate de activarla en tu navegador. Deberías ver un ícono en la barra de herramientas del navegador que representa la extensión.
+
+3. **Configura las Reglas**:
+   Accede a la configuración de la extensión y agrega las reglas necesarias para permitir que las solicitudes CORS desde tu dominio en Vercel lleguen a la API de BUDA.com.
+
+### ¿Por qué se necesita esta solución?
+
+El problema original se debía a las restricciones CORS en la API de BUDA.com, que bloqueaban las solicitudes desde dominios diferentes al de la API. La extensión "Moesif Origin & CORS Changer" actúa como un intermediario que permite que las solicitudes se realicen sin problemas, facilitando así el desarrollo y la prueba de la aplicación en un entorno local o de desarrollo.
+
+Es importante tener en cuenta que esta solución es adecuada para fines de desarrollo y pruebas, pero no se recomienda para un entorno de producción. En producción, se debe abordar el problema de CORS en el servidor de la API o mediante otras soluciones más seguras.
+
+## Enlace a la Aplicación en Vercel
+
+Puedes acceder a la aplicación en vivo a través del siguiente enlace:
+
+[**DCA Simulator for BUDA.com**](https://dca-janieck.vercel.app/)
+
+¡Explora la simulación de estrategias de inversión con Dollar Cost Averaging (DCA) en tiempo real!
+
+
+
