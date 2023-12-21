@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import {  startOfMonth, getUnixTime, startOfDay, differenceInMonths, addMonths, format } from 'date-fns';
+import { startOfMonth, getUnixTime, startOfDay, differenceInMonths, addMonths, format } from 'date-fns';
 import { es } from 'date-fns/locale';
-
 
 function Simulator() {
     const [data, setData] = useState([]);
@@ -14,12 +13,13 @@ function Simulator() {
     const [startMonth, setStartMonth] = useState(1);
     const [endMonth, setEndMonth] = useState(12);
 
-
-
+    useEffect(() => {
+        fetchData();
+    }, [startYear, endYear, startMonth, endMonth, investment]);
 
     const fetchData = async () => {
-        let startDate = new Date(startYear, startMonth );
-        let endDate = new Date(endYear, endMonth);
+        let startDate = new Date(startYear, startMonth - 1);
+        let endDate = new Date(endYear, endMonth - 1);
         let monthsBetween = differenceInMonths(endDate, startDate);
 
         if (monthsBetween > 12) {
@@ -35,36 +35,24 @@ function Simulator() {
         const responses = await Promise.all(dates.map(date => {
             let url;
             if (process.env.NODE_ENV === 'development') {
-                // En desarrollo, usa el proxy
-                url = `/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
+                url = `/api/v2/markets/BTC-CLP/trades?timestamp=${date * 1000}&limit=1`;
             } else {
-                // En producción, consulta directamente a la API
-                url = `https://www.buda.com/api/v2/markets/BTC-CLP/trades?timestamp=${date*1000}&limit=1`;
+                url = `https://www.buda.com/api/v2/markets/BTC-CLP/trades?timestamp=${date * 1000}&limit=1`;
             }
             return axios.get(url)
-                .then(response => {
-                    if (response && response.data && response.data.trades && response.data.trades.entries && response.data.trades.entries.length > 0) {
-                        const timestamp = response.data.trades.entries[0][0];
-                        if (!isNaN(timestamp)) { 
-                            const date = new Date(parseInt(timestamp)); 
-                            
-                        } else {
-                            console.log('Invalid timestamp:', timestamp); 
-                        }
-                    }
-                    return response;
-                })
+                .then(response => response)
                 .catch(error => {
-                    console.error("Error fetching trades:", error); 
+                    console.error("Error fetching trades:", error);
                     return null;
                 });
         }));
-        
+
+        // Procesamiento de los datos
         const trades = responses.map(response => {
             if (response && response.data && response.data.trades && response.data.trades.entries && response.data.trades.entries.length > 0) {
                 const trade = response.data.trades.entries[0];
                 const timestamp = parseInt(trade[0]);
-                const date = new Date(timestamp * 1000);
+                const date = new Date(timestamp);
                 return {
                     date,
                     amount: parseFloat(trade[1]),
@@ -75,39 +63,32 @@ function Simulator() {
             } else {
                 return null;
             }
-        });
-        
+        }).filter(Boolean);
 
+        // Lógica para calcular los datos del gráfico
         let totalInvestment = 0;
         let totalBTC = 0;
         const processedData = trades.map((trade, index) => {
-            if (trade) {
-                const amount = trade.amount;
-                const price = trade.price;
-        
-                totalInvestment += investment;
-                const btcBought = investment / price;
-                totalBTC += btcBought;
-        
-                return {
-                    month: index + 1,
-                    monthYear: (format(trade.date/1000, 'MMMM yyyy', { locale: es }).charAt(0).toUpperCase() + format(trade.date/1000, 'MMMM yyyy', { locale: es }).slice(1)),
-                    investment: totalInvestment,
-                    btc: totalBTC,
-                    value: totalBTC * price,
-                    profit: totalBTC * price - totalInvestment,
-                    variationCLP: Math.abs(totalBTC * price - totalInvestment), // Variación en CLP
-                    variationPercent: ((totalBTC * price - totalInvestment) / totalInvestment) * 100, // Variación en %
-                };
-            }
+            const amount = trade.amount;
+            const price = trade.price;
+
+            totalInvestment += investment;
+            const btcBought = investment / price;
+            totalBTC += btcBought;
+
+            return {
+                month: index + 1,
+                monthYear: format(trade.date, 'MMMM yyyy', { locale: es }),
+                investment: totalInvestment,
+                btc: totalBTC,
+                value: totalBTC * price,
+                profit: totalBTC * price - totalInvestment,
+                variationCLP: Math.abs(totalBTC * price - totalInvestment),
+                variationPercent: ((totalBTC * price - totalInvestment) / totalInvestment) * 100,
+            };
         });
 
-        const filteredData = processedData.filter(Boolean);
-        setData(filteredData);
-        console.log(filteredData);
-
-        
-        
+        setData(processedData);
     };
 
     const handleSubmit = (event) => {
